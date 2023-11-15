@@ -1,7 +1,8 @@
+version: "3.8"
+
 networks:
 
   hackathon:
-
 
 
 services:
@@ -12,6 +13,11 @@ services:
       - POSTGRES_DB=simple-image-server
       - POSTGRES_PASSWORD=test123
       - POSTGRES_USER=image-server
+#    healthcheck:
+#      interval: 1s
+#      retries: 10
+#      test: [ "CMD-SHELL", “pg_isready” ]
+#      timeout: 5s
     hostname: image-server-db
     image: postgres:14-alpine
     networks:
@@ -19,20 +25,33 @@ services:
     ports:
       - 5455:5432
 
-  quarkus:
+  quarkus-jvm:
     build:
+      # ./gradlew build -x test
+      context: .
+      dockerfile: ./src/main/docker/Dockerfile.jvm
+    container_name: quarkus-jvm
+    depends_on:
+      postgres:
+#        condition: service_healthy
+        condition: service_started
+    image: quarkus/simple-image-server-jvm
+    networks:
+      - hackathon
+    ports:
+      - 8080:8080
+    
+  quarkus-native:
+    build:
+      # ./gradlew build -Dquarkus.package.type=native -x test
       context: .
       dockerfile: ./src/main/docker/Dockerfile.native-micro
-    command: [
-      "-Dquarkus.datasource.db-kind=postgresql",
-      "-Dquarkus.datasource.username=image-server",
-      "-Dquarkus.datasource.password=test123",
-      "-Dquarkus.datasource.jdbc.url=jdbc:postgresql://image-server-db:5432/simple-image-server",
-      "-Dquarkus.hibernate-orm.database.generation=update"
-    ]
-    container_name: quarkus
-    hostname: image-server-app
-    image: quarkus-quickstart/getting-started
+    container_name: quarkus-native
+    depends_on:
+      postgres:
+#        condition: service_healthy
+        condition: service_started
+    image: quarkus/simple-image-server-native
     networks:
       - hackathon
     ports:
