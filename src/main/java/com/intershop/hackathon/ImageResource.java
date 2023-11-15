@@ -6,7 +6,9 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Path("image")
 public class ImageResource {
@@ -24,5 +26,11 @@ public class ImageResource {
         }
         System.out.println("Found nothing :(");
         return new byte[0];
+    }
+
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    public List<ImageDefinition> getAllDefinitions() {
+        return ImageEntity.findAll().stream().map(img -> ImageDefinitionFactory.create((ImageEntity) img)).collect(Collectors.toList());
     }
 }
