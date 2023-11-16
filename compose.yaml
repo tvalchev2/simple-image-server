@@ -35,6 +35,10 @@ services:
       postgres:
 #        condition: service_healthy
         condition: service_started
+    environment:
+      - POSTGRESQL_URL=jdbc:postgresql://image-server-db:5432/simple-image-server
+      - POSTGRESQL_USERNAME=image-server
+      - POSTGRESQL_PASSWORD=test123
     image: quarkus/simple-image-server-jvm
     networks:
       - hackathon
@@ -51,6 +55,10 @@ services:
       postgres:
 #        condition: service_healthy
         condition: service_started
+    environment:
+      - POSTGRESQL_URL=jdbc:postgresql://image-server-db:5432/simple-image-server
+      - POSTGRESQL_USERNAME=image-server
+      - POSTGRESQL_PASSWORD=test123
     image: quarkus/simple-image-server-native
     networks:
       - hackathon
